@@ -19,8 +19,8 @@
 
 ## Roadmap
 
-- [ ] WebSocket transport
-- [ ] RPC layer
+- [x] WebSocket transport
+- [x] RPC layer
 - [ ] Session storage
 - [ ] Authentication flow
 - [ ] Public API stabilization
