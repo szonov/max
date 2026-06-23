@@ -143,7 +143,7 @@ func (ws *Websocket) Run(ctx context.Context) error {
 		err := ws.runConnection(ctx)
 
 		if ws.debugEnabled {
-			if err != nil {
+			if err != nil && !errors.Is(err, context.Canceled) {
 				ws.logger.Debug(ws.t("disconnected"), "err", err)
 			} else {
 				ws.logger.Debug(ws.t("disconnected"))
@@ -151,6 +151,10 @@ func (ws *Websocket) Run(ctx context.Context) error {
 		}
 
 		ws.state.Store(stateDisconnected)
+
+		if errors.Is(err, context.Canceled) {
+			return nil
+		}
 
 		ws.Events.Disconnect.Emit(ctx, err)
 
@@ -164,6 +168,9 @@ func (ws *Websocket) Run(ctx context.Context) error {
 			return err
 
 		case <-ctx.Done():
+			if errors.Is(ctx.Err(), context.Canceled) {
+				return nil
+			}
 			return ctx.Err()
 
 		case <-time.After(backoff):
