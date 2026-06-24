@@ -1,17 +1,12 @@
 package transport
 
 import (
-	"context"
 	"log/slog"
 	"net/http"
 	"time"
 )
 
 type Option func(*Websocket)
-
-// HeartbeatFunc Функция для проверки соединения с websocket сервером,
-// по умолчанию используется conn.Ping()
-type HeartbeatFunc func(ctx context.Context, ws *Websocket) error
 
 // HeadersFunc устанавливает HTTP заголовки для соединения с websocket сервером
 type HeadersFunc func() http.Header
@@ -20,13 +15,6 @@ type HeadersFunc func() http.Header
 func WithHeaderFunc(headerFunc HeadersFunc) Option {
 	return func(ws *Websocket) {
 		ws.headersFunc = headerFunc
-	}
-}
-
-// WithHeartbeatFunc установка функции для поддержания соединения с websocket сервером,
-func WithHeartbeatFunc(heartbeatFunc HeartbeatFunc) Option {
-	return func(ws *Websocket) {
-		ws.heartbeatFunc = heartbeatFunc
 	}
 }
 

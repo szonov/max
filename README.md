@@ -21,8 +21,8 @@
 
 - [x] WebSocket transport
 - [x] RPC layer
-- [ ] Session storage
-- [ ] Authentication flow
+- [x] Session storage
+- [x] Authentication flow
 - [ ] Public API stabilization
 - [ ] Documentation
 - [ ] First stable release

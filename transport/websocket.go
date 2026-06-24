@@ -49,7 +49,7 @@ type Websocket struct {
 	readLimit   int64              // opts: WithReadLimit
 
 	// heartbeat config
-	heartbeatFunc     HeartbeatFunc // opts: WithHeartbeatFunc
+	heartbeatFunc     HeartbeatFunc // SetHeartbeatFunc
 	heartbeatInterval time.Duration // opts: WithHeartbeatInterval
 	heartbeatTimeout  time.Duration // opts: WithHeartbeatTimeout
 
@@ -87,6 +87,14 @@ func New(url string, opts ...Option) *Websocket {
 		o(ws)
 	}
 	return ws
+}
+
+// HeartbeatFunc выполняет проверку активности WebSocket соединения.
+type HeartbeatFunc func(ctx context.Context, ws *Websocket) error
+
+// SetHeartbeatFunc установка функции для поддержания соединения с websocket сервером
+func (ws *Websocket) SetHeartbeatFunc(fn HeartbeatFunc) {
+	ws.heartbeatFunc = fn
 }
 
 // IsConnected возвращает true, если WebSocket соединение активно.
@@ -318,12 +326,12 @@ func (ws *Websocket) heartbeatLoop(ctx context.Context) error {
 
 			pingCtx, cancel := context.WithTimeout(ctx, ws.heartbeatTimeout)
 			var err error
+			if ws.debugEnabled {
+				ws.logger.Debug("heartbeat")
+			}
 			if ws.heartbeatFunc != nil {
 				err = ws.heartbeatFunc(pingCtx, ws)
 			} else {
-				if ws.debugEnabled {
-					ws.logger.Debug("heartbeat")
-				}
 				err = ws.conn.Ping(pingCtx)
 			}
 			cancel()
@@ -372,7 +380,7 @@ func (ws *Websocket) Send(ctx context.Context, v any) error {
 	return nil
 }
 
-// t debug title
+// t возвращает цветной префикс для debug логов.
 func (ws *Websocket) t(key string) string {
 	return fmt.Sprintf("%swebsocket:%s%s", "\033[32m", key, "\033[0m")
 }
